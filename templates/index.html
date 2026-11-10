@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Administración de Turnos</title>
     <link rel="stylesheet" href="/static/styles.css">
 </head>
@@ -12,8 +13,8 @@
     </header>
 
     <div class="contenedor">
-        
-        <!-- Formulario de Registro -->
+
+        <!-- Formulario de registro -->
         <section class="tarjeta">
             <h2>Registrar Nuevo Paciente</h2>
             <form action="/registrar" method="POST">
@@ -21,66 +22,95 @@
                 <input type="text" name="nombre" required>
 
                 <label>Edad:</label>
-                <input type="number" name="edad" required>
+                <input type="number" name="edad" min="0" max="120" required>
 
                 <label>Motivo de Consulta:</label>
                 <input type="text" name="motivo" required>
 
-                <label>Tipo de Atención:</label>
-                <select name="tipo_atencion">
-                    <option value="General">General</option>
-                    <option value="Prioritaria">Prioritaria</option>
+                <label>Nivel de Urgencia:</label>
+                <select name="urgencia">
+                    <option value="emergencia">Emergencia (Prioritaria, 40 min)</option>
+                    <option value="urgente">Urgente (Prioritaria, 30 min)</option>
+                    <option value="leve">Leve (General, 20 min)</option>
+                    <option value="rutina">Rutina (General, 15 min)</option>
                 </select>
-
-                <label>Tiempo Estimado (minutos):</label>
-                <input type="number" name="tiempo_estimado" required>
 
                 <button type="submit" class="btn-guardar">Generar Turno</button>
             </form>
         </section>
 
-        <!-- Control de Médicos -->
+        <!-- Control del médico -->
         <section class="tarjeta">
-            <h2>Control Médicos</h2>
-            
-            <div class="caja-siguiente">
-                <h3>Siguiente Paciente:</h3>
-                {{siguiente_paciente}}
+            <h2>Control Médico</h2>
+
+            <div class="caja-paciente">
+                <h3>En consulta:</h3>
+                {{en_consulta}}
             </div>
 
-            <form action="/atender" method="POST">
-                <button type="submit" class="btn-atender">Atender Siguiente Paciente</button>
+            <div class="caja-paciente">
+                <h3>Siguiente paciente:</h3>
+                {{siguiente}}
+            </div>
+
+            <form action="/llamar" method="POST">
+                <button type="submit" class="btn-llamar">Llamar Siguiente Paciente</button>
+            </form>
+
+            <form action="/finalizar" method="POST">
+                <button type="submit" class="btn-finalizar">Finalizar Consulta</button>
             </form>
 
             <hr>
 
-            <h3>Estadísticas del Día</h3>
+            <h3>Estadísticas</h3>
             <ul class="stats">
+                <li><strong>Registrados:</strong> {{registrados}}</li>
                 <li><strong>En espera:</strong> {{en_espera}}</li>
                 <li><strong>Atendidos:</strong> {{atendidos}}</li>
-                <li><strong>Atención Prioritaria:</strong> {{prioritarios}}</li>
-                <li><strong>Atención General:</strong> {{generales}}</li>
+                <li><strong>Atendidos prioritarios:</strong> {{prioritarios}}</li>
+                <li><strong>Atendidos generales:</strong> {{generales}}</li>
+                <li><strong>Tiempo estimado promedio:</strong> {{promedio}} min</li>
             </ul>
         </section>
 
     </div>
 
-    <!-- Lista de Espera -->
-    <section class="tarjeta lista-espera">
-        <h2>Fila de Espera de Pacientes</h2>
+    <!-- Fila prioritaria -->
+    <section class="tarjeta lista">
+        <h2 class="titulo-prioritaria">Fila de Atención Prioritaria</h2>
         <table>
             <thead>
-                <tr>
-                    <th>Turno</th>
-                    <th>Nombre</th>
-                    <th>Edad</th>
-                    <th>Motivo</th>
-                    <th>Tipo</th>
-                    <th>Tiempo Est.</th>
-                </tr>
+                <tr><th>Turno</th><th>Nombre</th><th>Edad</th><th>Motivo</th><th>Urgencia</th><th>Atención</th><th>Tiempo Est.</th></tr>
             </thead>
             <tbody>
-                {{tabla_pacientes}}
+                {{fila_prioritaria}}
+            </tbody>
+        </table>
+    </section>
+
+    <!-- Fila general -->
+    <section class="tarjeta lista">
+        <h2>Fila de Atención General</h2>
+        <table>
+            <thead>
+                <tr><th>Turno</th><th>Nombre</th><th>Edad</th><th>Motivo</th><th>Urgencia</th><th>Atención</th><th>Tiempo Est.</th></tr>
+            </thead>
+            <tbody>
+                {{fila_general}}
+            </tbody>
+        </table>
+    </section>
+
+    <!-- Pacientes atendidos -->
+    <section class="tarjeta lista">
+        <h2>Pacientes Atendidos</h2>
+        <table>
+            <thead>
+                <tr><th>Turno</th><th>Nombre</th><th>Edad</th><th>Motivo</th><th>Urgencia</th><th>Atención</th><th>Tiempo Est.</th></tr>
+            </thead>
+            <tbody>
+                {{tabla_atendidos}}
             </tbody>
         </table>
     </section>

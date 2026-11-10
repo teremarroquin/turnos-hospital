@@ -14,6 +14,7 @@ header {
 
 .contenedor {
     display: flex;
+    flex-wrap: wrap;
     gap: 20px;
     justify-content: center;
     margin-bottom: 20px;
@@ -25,15 +26,17 @@ header {
     border-radius: 8px;
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     flex: 1;
+    min-width: 280px;
+    overflow-x: auto;
 }
 
-.lista-espera {
-    max-width: 900px;
-    margin: 0 auto;
+.lista {
+    max-width: 960px;
+    margin: 0 auto 20px auto;
 }
 
-/* Caja del siguiente paciente */
-.caja-siguiente {
+/* Cajas de pacientes */
+.caja-paciente {
     background-color: #e8f4fd;
     border-left: 4px solid #0056b3;
     padding: 10px 15px;
@@ -41,19 +44,19 @@ header {
     margin-bottom: 15px;
 }
 
-.caja-siguiente h3 {
+.caja-paciente h3 {
     margin-top: 0;
     margin-bottom: 5px;
     font-size: 15px;
     color: #0056b3;
 }
 
-.caja-siguiente p {
+.caja-paciente p {
     margin: 0;
     font-size: 14px;
-    color: #333;
 }
 
+/* Formularios */
 form {
     display: flex;
     flex-direction: column;
@@ -78,11 +81,15 @@ button {
     background-color: #28a745;
 }
 
-.btn-atender {
+.btn-llamar {
     background-color: #007bff;
-    width: 100%;
 }
 
+.btn-finalizar {
+    background-color: #6c757d;
+}
+
+/* Estadisticas */
 .stats {
     list-style: none;
     padding: 0;
@@ -92,6 +99,7 @@ button {
     margin-bottom: 8px;
 }
 
+/* Tablas */
 table {
     width: 100%;
     border-collapse: collapse;
@@ -106,4 +114,8 @@ th, td {
 th {
     background-color: #0056b3;
     color: white;
+}
+
+.titulo-prioritaria {
+    color: #b3402f;
 }
