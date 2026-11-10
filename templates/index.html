@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Turnos del hospital</title>
+    <style>
+        /* Estilos generales */
+        body { font-family: Verdana, sans-serif; background: #eef5f4; color: #1f3a3d; margin: 0; padding: 20px; }
+        .contenedor { max-width: 1000px; margin: auto; }
+        h1 { margin-bottom: 4px; }
+        h2 { font-size: 18px; margin-top: 0; }
+        .caja { background: white; border-radius: 12px; padding: 18px; margin-bottom: 18px; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08); overflow-x: auto; }
+        .columnas { display: flex; gap: 18px; flex-wrap: wrap; }
+        .columnas .caja { flex: 1; min-width: 280px; }
+
+        /* Formulario y botones */
+        label { display: block; margin-top: 10px; font-size: 14px; }
+        input, select { width: 100%; padding: 8px; margin-top: 4px; border: 1px solid #b9cfcc; border-radius: 6px; box-sizing: border-box; }
+        button { background: #2a7f7a; color: white; border: none; padding: 10px 16px; border-radius: 6px; cursor: pointer; margin-top: 14px; }
+        button:hover { background: #1f625e; }
+        form.inline { display: inline; margin-right: 8px; }
+
+        /* Estadisticas */
+        .stats { display: flex; gap: 12px; flex-wrap: wrap; }
+        .stat { flex: 1; min-width: 120px; background: #eef5f4; border-radius: 8px; padding: 10px; text-align: center; }
+        .stat strong { display: block; font-size: 24px; }
+
+        /* Tablas */
+        table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        th, td { text-align: left; padding: 8px; border-bottom: 1px solid #dde8e6; }
+        .prioritaria { color: #b3402f; }
+        .aviso { background: #fff4d6; padding: 10px; border-radius: 8px; margin-bottom: 18px; }
+        .aviso:empty { display: none; }
+    </style>
+</head>
+<body>
+<div class="contenedor">
+
+    <!-- Encabezado -->
+    <h1>Turnos del hospital</h1>
+    <p>Consulta médica</p>
+
+    <p class="aviso">{{MENSAJE}}</p>
+
+    <!-- Estadisticas -->
+    <div class="caja">
+        <h2>Estadísticas</h2>
+        <div class="stats">
+            <div class="stat"><strong>{{REGISTRADOS}}</strong>Registrados</div>
+            <div class="stat"><strong>{{EN_ESPERA}}</strong>En espera</div>
+            <div class="stat"><strong>{{ATENDIDOS}}</strong>Atendidos</div>
+            <div class="stat"><strong>{{PRIORITARIOS}}</strong>Prioritarios</div>
+            <div class="stat"><strong>{{GENERALES}}</strong>Generales</div>
+            <div class="stat"><strong>{{PROMEDIO}} min</strong>Tiempo promedio</div>
+        </div>
+    </div>
+
+    <div class="columnas">
+
+        <!-- Formulario -->
+        <div class="caja">
+            <h2>Registrar paciente</h2>
+            <form action="/registrar" method="post">
+                <label>Nombre
+                    <input type="text" name="nombre" required>
+                </label>
+                <label>Edad
+                    <input type="number" name="edad" min="0" max="120" required>
+                </label>
+                <label>Motivo de consulta
+                    <input type="text" name="motivo" required>
+                </label>
+                <label>Nivel de urgencia
+                    <select name="urgencia">
+                        <option value="emergencia">Emergencia (Prioritaria, 40 min)</option>
+                        <option value="urgente">Urgente (Prioritaria, 30 min)</option>
+                        <option value="leve">Leve (General, 20 min)</option>
+                        <option value="rutina">Rutina (General, 15 min)</option>
+                    </select>
+                </label>
+                <button type="submit">Registrar paciente</button>
+            </form>
+        </div>
+
+        <!-- Consulta actual -->
+        <div class="caja">
+            <h2>Consulta actual</h2>
+            <p>{{CONSULTA_ACTUAL}}</p>
+            <form class="inline" action="/llamar" method="post">
+                <button type="submit">Llamar siguiente</button>
+            </form>
+            <form class="inline" action="/finalizar" method="post">
+                <button type="submit">Finalizar consulta</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Fila prioritaria -->
+    <div class="caja">
+        <h2 class="prioritaria">Fila prioritaria</h2>
+        <table>
+            <tr><th>Turno</th><th>Nombre</th><th>Edad</th><th>Motivo</th><th>Urgencia</th><th>Atención</th><th>Tiempo</th></tr>
+            {{FILAS_PRIORITARIA}}
+        </table>
+    </div>
+
+    <!-- Fila general -->
+    <div class="caja">
+        <h2>Fila general</h2>
+        <table>
+            <tr><th>Turno</th><th>Nombre</th><th>Edad</th><th>Motivo</th><th>Urgencia</th><th>Atención</th><th>Tiempo</th></tr>
+            {{FILAS_GENERAL}}
+        </table>
+    </div>
+
+    <!-- Pacientes atendidos -->
+    <div class="caja">
+        <h2>Pacientes atendidos</h2>
+        <table>
+            <tr><th>Turno</th><th>Nombre</th><th>Edad</th><th>Motivo</th><th>Urgencia</th><th>Atención</th><th>Tiempo</th></tr>
+            {{FILAS_ATENDIDOS}}
+        </table>
+    </div>
+
+</div>
+</body>
+</html>
