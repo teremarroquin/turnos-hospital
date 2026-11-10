@@ -1,0 +1,109 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f7f6;
+    margin: 0;
+    padding: 20px;
+    color: #333;
+}
+
+header {
+    text-align: center;
+    color: #0056b3;
+    margin-bottom: 20px;
+}
+
+.contenedor {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.tarjeta {
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    flex: 1;
+}
+
+.lista-espera {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+/* Caja del siguiente paciente */
+.caja-siguiente {
+    background-color: #e8f4fd;
+    border-left: 4px solid #0056b3;
+    padding: 10px 15px;
+    border-radius: 4px;
+    margin-bottom: 15px;
+}
+
+.caja-siguiente h3 {
+    margin-top: 0;
+    margin-bottom: 5px;
+    font-size: 15px;
+    color: #0056b3;
+}
+
+.caja-siguiente p {
+    margin: 0;
+    font-size: 14px;
+    color: #333;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+input, select, button {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+button {
+    cursor: pointer;
+    font-weight: bold;
+    color: white;
+    border: none;
+    margin-top: 10px;
+}
+
+.btn-guardar {
+    background-color: #28a745;
+}
+
+.btn-atender {
+    background-color: #007bff;
+    width: 100%;
+}
+
+.stats {
+    list-style: none;
+    padding: 0;
+}
+
+.stats li {
+    margin-bottom: 8px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    text-align: left;
+}
+
+th {
+    background-color: #0056b3;
+    color: white;
+}

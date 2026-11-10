@@ -1,106 +1,75 @@
 import sqlite3
 
-# Clasificacion de urgencias
-URGENCIAS = {
-    "emergencia": {"nombre": "Emergencia", "tipo": "Prioritaria", "minutos": 40},
-    "urgente": {"nombre": "Urgente", "tipo": "Prioritaria", "minutos": 30},
-    "leve": {"nombre": "Leve", "tipo": "General", "minutos": 20},
-    "rutina": {"nombre": "Rutina", "tipo": "General", "minutos": 15},
-}
-
-
-class Hospital:
-    def __init__(self):
-        self.crear_tabla()
-
-    # Base de datos
-    def ejecutar(self, sql, datos=()):
-        conexion = sqlite3.connect("hospital.db")
-        cursor = conexion.execute(sql, datos)
-        conexion.commit()
-        ultimo_id = cursor.lastrowid
-        conexion.close()
-        return ultimo_id
-
-    def consultar(self, sql, datos=()):
-        conexion = sqlite3.connect("hospital.db")
-        conexion.row_factory = sqlite3.Row
-        filas = conexion.execute(sql, datos).fetchall()
-        conexion.close()
-        return filas
-
-    def crear_tabla(self):
-        self.ejecutar("""
-            CREATE TABLE IF NOT EXISTS pacientes (
-                turno INTEGER PRIMARY KEY AUTOINCREMENT,
-                nombre TEXT,
-                edad INTEGER,
-                motivo TEXT,
-                urgencia TEXT,
-                tipo TEXT,
-                tiempo_estimado INTEGER,
-                estado TEXT DEFAULT 'espera'
-            )
-        """)
-
-    # Registrar paciente
-    def registrar(self, nombre, edad, motivo, urgencia):
-        datos = URGENCIAS[urgencia]
-        turno = self.ejecutar(
-            "INSERT INTO pacientes (nombre, edad, motivo, urgencia, tipo, tiempo_estimado) VALUES (?, ?, ?, ?, ?, ?)",
-            (nombre, edad, motivo, datos["nombre"], datos["tipo"], datos["minutos"]),
+# Inicializar base de datos
+def inicializar_db():
+    conn = sqlite3.connect('hospital.db')
+    cursor = conn.cursor()
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS turnos (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            nombre TEXT NOT NULL,
+            edad INTEGER NOT NULL,
+            motivo TEXT NOT NULL,
+            tipo_atencion TEXT NOT NULL,
+            tiempo_estimado INTEGER NOT NULL,
+            estado TEXT DEFAULT 'En espera'
         )
-        return turno
+    ''')
+    conn.commit()
+    conn.close()
 
-    # Filas de espera (el turno mas chico llego primero)
-    def fila(self, tipo):
-        return self.consultar(
-            "SELECT * FROM pacientes WHERE estado = 'espera' AND tipo = ? ORDER BY turno", (tipo,)
-        )
+# Registrar paciente
+def registrar_paciente(nombre, edad, motivo, tipo_atencion, tiempo_estimado):
+    conn = sqlite3.connect('hospital.db')
+    cursor = conn.cursor()
+    cursor.execute('''
+        INSERT INTO turnos (nombre, edad, motivo, tipo_atencion, tiempo_estimado)
+        VALUES (?, ?, ?, ?, ?)
+    ''', (nombre, edad, motivo, tipo_atencion, tiempo_estimado))
+    conn.commit()
+    conn.close()
 
-    def atendidos(self):
-        return self.consultar("SELECT * FROM pacientes WHERE estado = 'atendido' ORDER BY turno")
+# Obtener pacientes en espera
+def obtener_pacientes_espera():
+    conn = sqlite3.connect('hospital.db')
+    cursor = conn.cursor()
+    cursor.execute('''
+        SELECT id, nombre, edad, motivo, tipo_atencion, tiempo_estimado 
+        FROM turnos 
+        WHERE estado = 'En espera'
+        ORDER BY CASE WHEN tipo_atencion = 'Prioritaria' THEN 1 ELSE 2 END, id ASC
+    ''')
+    pacientes = cursor.fetchall()
+    conn.close()
+    return pacientes
 
-    def en_consulta(self):
-        pacientes = self.consultar("SELECT * FROM pacientes WHERE estado = 'consulta'")
-        if len(pacientes) > 0:
-            return pacientes[0]
-        return None
+# Obtener solo el siguiente paciente
+def obtener_siguiente_paciente():
+    pacientes = obtener_pacientes_espera()
+    return pacientes[0] if pacientes else None
 
-    # Llamar al siguiente paciente
-    def llamar_siguiente(self):
-        siguientes = self.fila("Prioritaria")
-        if len(siguientes) == 0:
-            siguientes = self.fila("General")
-        if len(siguientes) == 0:
-            return None
-        turno = siguientes[0]["turno"]
-        self.ejecutar("UPDATE pacientes SET estado = 'consulta' WHERE turno = ?", (turno,))
-        return turno
+# Atender paciente
+def atender_siguiente_paciente():
+    paciente = obtener_siguiente_paciente()
+    if paciente:
+        conn = sqlite3.connect('hospital.db')
+        cursor = conn.cursor()
+        cursor.execute("UPDATE turnos SET estado = 'Atendido' WHERE id = ?", (paciente[0],))
+        conn.commit()
+        conn.close()
+    return paciente
 
-    # Finalizar consulta
-    def finalizar_consulta(self):
-        self.ejecutar("UPDATE pacientes SET estado = 'atendido' WHERE estado = 'consulta'")
-
-    # Estadisticas
-    def estadisticas(self):
-        atendidos = self.atendidos()
-        prioritarios = 0
-        total_minutos = 0
-        for p in atendidos:
-            total_minutos += p["tiempo_estimado"]
-            if p["tipo"] == "Prioritaria":
-                prioritarios += 1
-
-        promedio = 0
-        if len(atendidos) > 0:
-            promedio = round(total_minutos / len(atendidos), 1)
-
-        return {
-            "registrados": len(self.consultar("SELECT turno FROM pacientes")),
-            "en_espera": len(self.fila("Prioritaria")) + len(self.fila("General")),
-            "atendidos": len(atendidos),
-            "prioritarios": prioritarios,
-            "generales": len(atendidos) - prioritarios,
-            "promedio": promedio,
-        }
+# Estadísticas
+def obtener_estadisticas():
+    conn = sqlite3.connect('hospital.db')
+    cursor = conn.cursor()
+    cursor.execute("SELECT COUNT(*) FROM turnos WHERE estado = 'En espera'")
+    en_espera = cursor.fetchone()[0]
+    cursor.execute("SELECT COUNT(*) FROM turnos WHERE estado = 'Atendido'")
+    atendidos = cursor.fetchone()[0]
+    cursor.execute("SELECT COUNT(*) FROM turnos WHERE tipo_atencion = 'Prioritaria'")
+    prioritarios = cursor.fetchone()[0]
+    cursor.execute("SELECT COUNT(*) FROM turnos WHERE tipo_atencion = 'General'")
+    generales = cursor.fetchone()[0]
+    conn.close()
+    return {"en_espera": en_espera, "atendidos": atendidos, "prioritarios": prioritarios, "generales": generales}
