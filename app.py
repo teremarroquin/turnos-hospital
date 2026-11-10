@@ -109,8 +109,10 @@ class Servidor(BaseHTTPRequestHandler):
         self.send_header("Location", "/")
         self.end_headers()
 
-
 # Iniciar el sistema
 servidor = HTTPServer(("localhost", 8000), Servidor)
-print("http://localhost:8000")
-servidor.serve_forever()
+print("Sistema listo en http://localhost:8000")
+try:
+    servidor.serve_forever()
+except KeyboardInterrupt:
+    print("Sistema detenido.")
